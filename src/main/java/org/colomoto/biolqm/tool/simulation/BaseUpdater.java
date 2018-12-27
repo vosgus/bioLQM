@@ -23,19 +23,14 @@ abstract public class BaseUpdater implements LogicalModelUpdater {
      *
      * @param state the base state
      * @param index the index of the component
-     * @return +1, or -1 for pending increase or decrease, 0 if it can not change state.
+     * @return the state to change to.
      */
     protected int nodeChange(byte[] state, int index) {
         byte curState = state[index];
         byte nextState = model.getTargetValue(index, state);
 
-        // now see if the node is willing to change it's state
-        if (nextState > curState){
-            return 1;
-        } else if (nextState < curState){
-            return -1;
-        }
-        return 0;
+        // Simply return the next state since we want to update immediately to that state
+        return nextState;
     }
 
     public LogicalModel getModel() {
@@ -53,14 +48,13 @@ abstract public class BaseUpdater implements LogicalModelUpdater {
      * @return an updated next state, cloned from the reference state if needed
      */
     protected byte[] update(byte[] state, int idx, int change, byte[] next) {
-        if (change == 0) {
-            return next;
-        }
-
         if (next == null) {
             next = state.clone();
         }
-        next[idx] += change;
+        
+        byte newState = (byte) (change & 0xFF);
+        //System.out.println("t: " + Integer.toString(t));
+        next[idx] = newState;
 
         return next;
     }
